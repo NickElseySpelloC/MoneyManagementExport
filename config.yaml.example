@@ -1,0 +1,27 @@
+MoneyManagement:
+  HeadlessMode: True
+  PageLoad: 4
+  Funds: 
+    - URL: "https://investmentcentre.moneymanagement.com.au/factsheets/AH/l1o7/bentham-global-income"
+    - URL: "https://investmentcentre.moneymanagement.com.au/factsheets/AH/09x2/pimco-global-bond-wholesale"
+      Symbol: ETL0018AU
+      Name: "PIMCO Global Bond"
+
+Files:
+  OutputCSV: price_data.csv
+  DaysToSave: 90
+  LogfileName: logfile.log
+  LogfileMaxLines: 200
+  # How much information do we write to the log file. One of: none; error; warning; summary; detailed; debug; all
+  LogfileVerbosity: debug
+  # How much information do we write to the console. One of: error; warning; summary; detailed; debug; all
+  ConsoleVerbosity: detailed
+
+Email:
+  EnableEmail: True
+  SendEmailsTo: <Your email address here>
+  SMTPServer: <Your SMTP server here>
+  SMTPPort: 587
+  SMTPUsername: <Your SMTP username here>
+  SMTPPassword: <Your SMTP password here>
+  SubjectPrefix: 
