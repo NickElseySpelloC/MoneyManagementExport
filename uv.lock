@@ -671,7 +671,7 @@ wheels = [
 
 [[package]]
 name = "sc-utility"
-version = "1.2.2"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cerberus" },
@@ -688,9 +688,9 @@ dependencies = [
     { name = "requests" },
     { name = "tzdata" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b1/c0/361868cc86785675dbce8778e6c39a515495f01189bb89ddab4cd06f4bbd/sc_utility-1.2.2.tar.gz", hash = "sha256:a3ba4f942059dd713c1d570698501453072aa354cdec03998d0d4308e578faeb", size = 13387, upload-time = "2025-06-23T16:13:58.052Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/77/35/db058eb14793e3db7d6d99f872ffba21361ac9e30ece0a1aab6008ff7c2d/sc_utility-1.3.0.tar.gz", hash = "sha256:fb2c4c992a8bbff467961aff0dcaa024876b029db756a4edc9bedd50c2eb9676", size = 17573, upload-time = "2025-07-08T09:26:02.193Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/81/46/c57be824e88a29031544f867abd980414ef192e08819e9bbe6ce54c4cbe9/sc_utility-1.2.2-py3-none-any.whl", hash = "sha256:1c389a55b1bf2ca74730ba52aee19c7420c5ea8cd997eb57ad4ca62e42cd6910", size = 14631, upload-time = "2025-06-23T16:13:56.748Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/3f/ab2d2db7c2c542a0d8c1f6acb0713a4d38916c148336fde3e4927166e539/sc_utility-1.3.0-py3-none-any.whl", hash = "sha256:852944d2f4623214b52b003cec1142ce12ba5cd5d7aec49bffdd1f080b798191", size = 19462, upload-time = "2025-07-08T09:26:00.783Z" },
 ]
 
 [[package]]
@@ -789,5 +789,5 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.4" },
     { name = "playwright", specifier = ">=1.53.0" },
     { name = "requests", specifier = ">=2.32.4" },
-    { name = "sc-utility", specifier = ">=1.2.2" },
+    { name = "sc-utility", specifier = ">=1.3.0" },
 ]

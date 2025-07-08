@@ -1,23 +1,14 @@
 
-import csv
-import operator
 import re
 import sys
-from pathlib import Path
 
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
-from sc_utility import DateHelper, SCConfigManager, SCLogger
+from sc_utility import CSVReader, DateHelper, SCConfigManager, SCLogger
 
 from config_schemas import ConfigSchema
 
 CONFIG_FILE = "config.yaml"
-
-"""
-TO DO:
-- README documentation
-- example config file
-"""
 
 
 def get_browser_context(config, logger):
@@ -231,7 +222,7 @@ def get_fund_prices(config, logger) -> list:
     return fund_prices
 
 
-def save_prices_to_csv(fund_prices, config, logger):
+def save_prices_to_csv(fund_prices, config, logger, header_config):
     """
     Saves the fund prices to a CSV file.
 
@@ -239,81 +230,19 @@ def save_prices_to_csv(fund_prices, config, logger):
         fund_prices (list): The list of fund prices to save.
         config (SCConfigManager): The configuration manager instance.
         logger (SCLogger): The logger instance for logging messages.
+        header_config (list[dict]): The configuration for the CSV header.
     """
-    output_csv = config.get("Files", "OutputCSV", default="price_data.csv")
-    csv_path = logger.select_file_location(output_csv)
+    csv_path = logger.select_file_location(config.get("Files", "OutputCSV", default="price_data.csv"))
 
-    # Set the earliest date to be an offset from today using the DaysToSave setting
-    days_to_save = config.get("Files", "DaysToSave", default=365)
-    earliest_date = DateHelper.today_add_days(-days_to_save)
-    header = ["Symbol", "Date", "Name", "Currency", "Price"]
+    # Second entry in header_config is the Date column
+    header_config[1]["minimum"] = DateHelper.today_add_days(-config.get("Files", "DaysToSave", default=365))
 
-    existing_data = []
-
+    # Create an instance of the CSVReader class and update the file
     try:
-        with Path(csv_path).open("r", newline="", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-
-            # Validate that the CSV file's header matches the header list object
-            if reader.fieldnames != header:
-                logger.log_message(f"CSV header mismatch. Expected: {header}, Found: {reader.fieldnames}", "warning")
-                # Continue with existing header if different
-
-            # Load existing data and filter by earliest_date
-            for row in reader:
-                try:
-                    row_date = DateHelper.parse_date(row["Date"], "%Y-%m-%d")
-                    # Remove any entries earlier than earliest_date
-                    if row_date >= earliest_date:
-                        # Convert Price to float for consistency
-                        row["Price"] = float(row["Price"])
-                        existing_data.append(row)
-                except (ValueError, KeyError) as e:
-                    logger.log_message(f"Skipping invalid row: {row} - {e}", "warning")
-
-    except FileNotFoundError:
-        logger.log_message(f"CSV file not found: {csv_path}. Creating new file.", "debug")
-    except (OSError, csv.Error) as e:
-        logger.log_message(f"Error reading CSV file: {e}", "error")
-
-    # Convert fund_prices to the same format for merging
-    formatted_fund_prices = []
-    for fund in fund_prices:
-        formatted_fund_prices.append({
-            "Symbol": fund["Symbol"],
-            "Date": fund["Date"].strftime("%Y-%m-%d"),
-            "Name": fund["Name"],
-            "Currency": fund["Currency"],
-            "Price": fund["Price"]
-        })
-
-    # Merge with the fund_prices list - fund_prices wins on conflicts
-    merged_data = {}
-
-    # First, add existing data
-    for row in existing_data:
-        key = (row["Symbol"], row["Date"])
-        merged_data[key] = row
-
-    # Then, add/override with fund_prices data
-    for fund in formatted_fund_prices:
-        key = (fund["Symbol"], fund["Date"])
-        merged_data[key] = fund
-
-    # Convert back to list and sort by Symbol, then Date
-    final_data = list(merged_data.values())
-    final_data.sort(key=operator.itemgetter("Symbol", "Date"))
-
-    try:
-        with Path(csv_path).open("w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=header)
-            writer.writeheader()
-            writer.writerows(final_data)
-
-        logger.log_message(f"Successfully saved {len(final_data)} entries to {csv_path}", "detailed")
-
-    except (OSError, csv.Error) as e:
-        logger.log_fatal_error(f"Error writing CSV file: {e}")
+        csv_reader = CSVReader(csv_path, header_config)
+        csv_reader.update_csv_file(fund_prices)
+    except (ImportError, TypeError, ValueError, RuntimeError) as e:
+        logger.log_fatal_error(f"Failed to update CSV file: {e}")
 
 
 def main():
@@ -349,7 +278,7 @@ def main():
     fund_prices = get_fund_prices(config, logger)
 
     # Save the fund prices to a CSV file
-    save_prices_to_csv(fund_prices, config, logger)
+    save_prices_to_csv(fund_prices, config, logger, schemas.csv_header_config)
 
     # Final message
     logger.log_message("Fund prices export complete.", "summary")
