@@ -1,10 +1,10 @@
-
+"""Money Management Exporter."""
 import re
 import sys
 
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
-from sc_utility import CSVReader, DateHelper, SCConfigManager, SCLogger
+from sc_utility import CSVReader, DateHelper, SCCommon, SCConfigManager, SCLogger
 
 from config_schemas import ConfigSchema
 
@@ -232,7 +232,8 @@ def save_prices_to_csv(fund_prices, config, logger, header_config):
         logger (SCLogger): The logger instance for logging messages.
         header_config (list[dict]): The configuration for the CSV header.
     """
-    csv_path = logger.select_file_location(config.get("Files", "OutputCSV", default="price_data.csv"))
+    csv_path = SCCommon.select_file_location(config.get("Files", "OutputCSV", default="price_data.csv"))
+    assert csv_path is not None, "CSV file path cannot be empty."
 
     # Second entry in header_config is the Date column
     header_config[1]["minimum"] = DateHelper.today_add_days(-config.get("Files", "DaysToSave", default=365))
@@ -246,7 +247,7 @@ def save_prices_to_csv(fund_prices, config, logger, header_config):
 
 
 def main():
-    # Get our default schema, validation schema, and placeholders
+    """Get our default schema, validation schema, and placeholders."""
     schemas = ConfigSchema()
 
     # Initialize the SCConfigManager class
