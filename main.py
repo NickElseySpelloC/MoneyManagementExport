@@ -227,7 +227,7 @@ def save_prices_to_csv(fund_prices, config, logger, header_config):
     Saves the fund prices to a CSV file.
 
     Args:
-        fund_prices (list): The list of fund prices to save.
+        fund_prices (list[dict]): The list of fund prices to save.
         config (SCConfigManager): The configuration manager instance.
         logger (SCLogger): The logger instance for logging messages.
         header_config (list[dict]): The configuration for the CSV header.
@@ -259,14 +259,14 @@ def main():
         )
     except RuntimeError as e:
         print(f"Configuration file error: {e}", file=sys.stderr)
-        return
+        sys.exit(1)     # Exit with errorcode 1 so that launch.sh can detect it
 
     # Initialize the SCLogger class
     try:
         logger = SCLogger(config.get_logger_settings())
     except RuntimeError as e:
         print(f"Logger initialisation error: {e}", file=sys.stderr)
-        return
+        sys.exit(1)     # Exit with errorcode 1 so that launch.sh can detect it
 
     # Startup message
     logger.log_message("Starting Money Management Exporter", "summary")
